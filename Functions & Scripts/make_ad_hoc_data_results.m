@@ -155,98 +155,98 @@ ind = (recInd == 1);
 prt(nanols(strat_ret(ind),const(ind)))
 prt(nanols(strat_ret(~ind),const(~ind)))
 
-%%
-
-clear
-clc
-
-load ret
-load me
-load dates
-load nyse
-load ff
-load varStruct
-load FF49
-
-% Determine the start date & number of portfolios
-s = find(dates==197501);
-nPtf = 5;
-
-% Find the FF49 results
-r = find(strcmp([varStruct.label],{'FF49'}));
-oilChanges = varStruct(r).wtiMonthlyBetas.Changes;
-oilResponseForecast = varStruct(r).predictedCAR.Changes;
-
-indRet = nan(49, 3);
-indTRet = nan(49, 3);
-indMean = nan(49, 1);
-indStd = nan(49, 1);
-indIQR = nan(49, 1);
-indKurt = nan(49, 1);
-
-for i = 1:49
-    temp = oilChanges;
-    temp(FF49~=i) = nan;
-    indMean(i) = nanmean(nanmedian(temp(s:end,:),2));
-    indStd(i) = nanmean(nanstd(temp(s:end,:),[],2));
-    indIQR(i) = nanmean(iqr(temp(s:end,:),2));
-    indKurt(i) = nanmean(kurtosis(temp(s:end,:),[],2));
-
-    temp = oilResponseForecast;
-    temp(FF49~=i) = nan;
-    
-    % Run the time-series regressions
-    ind = makeUnivSortInd(temp, nPtf, NYSE);
-    ind = 1*(ind==1) + 2*(ind==nPtf);
-    res = runUnivSort(ret, ind, dates, me, 'plotFigure', 0, ...
-                                           'printResults', 0, ...
-                                           'factorModel', 1);
-
-    % Account for the zero-oil-price-change quarters
-    pret = res.pret;
-    indZeroOilQtrChange = find(oilChanges == 0 & ...
-                              dates>197412);
-    pret(indZeroOilQtrChange+1,end-1:end)=repmat(rf(indZeroOilQtrChange+1),1,2);
-    pret(indZeroOilQtrChange+2,end-1:end)=repmat(rf(indZeroOilQtrChange+2),1,2);
-    pret(indZeroOilQtrChange+3,end-1:end)=repmat(rf(indZeroOilQtrChange+3),1,2);
-    pret(indZeroOilQtrChange+1,1:end-2)=0;
-    pret(indZeroOilQtrChange+2,1:end-2)=0;
-    pret(indZeroOilQtrChange+3,1:end-2)=0;
-    
-    pret(dates<197501,:)=nan;
-    for j = 1:size(pret,2)
-        tempRes = nanols(pret(:,j), const);
-        res(i).xret(j) = tempRes.beta;
-        res(i).txret(j) = tempRes.tstat;
-    end
-    
-    indRet(i,:) = res(i).xret;
-    indTRet(i,:) = res(i).txret;    
-end
-
-x = indKurt;
-y = indTRet(:,3);
-z = indMean;
-
-h1 = scatter(x, y, 'filled');
-h2 = lsline;
-res = nanols(y,[ones(size(y)) x]);
-% prt(res)
-
-bubblechart(x, y, z);
-
-barh(indRet(:,3));
-set(gca,'ytick',1:49);
-set(gca,'yticklabel',FF49Names.shortName)
-
-barh(indKurt);
-set(gca,'ytick',1:49);
-set(gca,'yticklabel',FF49Names.shortName)
-
-barh(indStd);
-set(gca,'ytick',1:49);
-set(gca,'yticklabel',FF49Names.shortName)
-
-barh(indTRet(:,3));
-set(gca,'ytick',1:49);
-set(gca,'yticklabel',FF49Names.shortName)
+% %%
+% 
+% clear
+% clc
+% 
+% load ret
+% load me
+% load dates
+% load nyse
+% load ff
+% load varStruct
+% load FF49
+% 
+% % Determine the start date & number of portfolios
+% s = find(dates==197501);
+% nPtf = 5;
+% 
+% % Find the FF49 results
+% r = find(strcmp([varStruct.label],{'FF49'}));
+% oilChanges = varStruct(r).wtiMonthlyBetas.Changes;
+% oilResponseForecast = varStruct(r).predictedCAR.Changes;
+% 
+% indRet = nan(49, 3);
+% indTRet = nan(49, 3);
+% indMean = nan(49, 1);
+% indStd = nan(49, 1);
+% indIQR = nan(49, 1);
+% indKurt = nan(49, 1);
+% 
+% for i = 1:49
+%     temp = oilChanges;
+%     temp(FF49~=i) = nan;
+%     indMean(i) = nanmean(nanmedian(temp(s:end,:),2));
+%     indStd(i) = nanmean(nanstd(temp(s:end,:),[],2));
+%     indIQR(i) = nanmean(iqr(temp(s:end,:),2));
+%     indKurt(i) = nanmean(kurtosis(temp(s:end,:),[],2));
+% 
+%     temp = oilResponseForecast;
+%     temp(FF49~=i) = nan;
+%     
+%     % Run the time-series regressions
+%     ind = makeUnivSortInd(temp, nPtf, NYSE);
+%     ind = 1*(ind==1) + 2*(ind==nPtf);
+%     res = runUnivSort(ret, ind, dates, me, 'plotFigure', 0, ...
+%                                            'printResults', 0, ...
+%                                            'factorModel', 1);
+% 
+%     % Account for the zero-oil-price-change quarters
+%     pret = res.pret;
+%     indZeroOilQtrChange = find(oilChanges == 0 & ...
+%                               dates>197412);
+%     pret(indZeroOilQtrChange+1,end-1:end)=repmat(rf(indZeroOilQtrChange+1),1,2);
+%     pret(indZeroOilQtrChange+2,end-1:end)=repmat(rf(indZeroOilQtrChange+2),1,2);
+%     pret(indZeroOilQtrChange+3,end-1:end)=repmat(rf(indZeroOilQtrChange+3),1,2);
+%     pret(indZeroOilQtrChange+1,1:end-2)=0;
+%     pret(indZeroOilQtrChange+2,1:end-2)=0;
+%     pret(indZeroOilQtrChange+3,1:end-2)=0;
+%     
+%     pret(dates<197501,:)=nan;
+%     for j = 1:size(pret,2)
+%         tempRes = nanols(pret(:,j), const);
+%         res(i).xret(j) = tempRes.beta;
+%         res(i).txret(j) = tempRes.tstat;
+%     end
+%     
+%     indRet(i,:) = res(i).xret;
+%     indTRet(i,:) = res(i).txret;    
+% end
+% 
+% x = indKurt;
+% y = indTRet(:,3);
+% z = indMean;
+% 
+% h1 = scatter(x, y, 'filled');
+% h2 = lsline;
+% res = nanols(y,[ones(size(y)) x]);
+% % prt(res)
+% 
+% bubblechart(x, y, z);
+% 
+% barh(indRet(:,3));
+% set(gca,'ytick',1:49);
+% set(gca,'yticklabel',FF49Names.shortName)
+% 
+% barh(indKurt);
+% set(gca,'ytick',1:49);
+% set(gca,'yticklabel',FF49Names.shortName)
+% 
+% barh(indStd);
+% set(gca,'ytick',1:49);
+% set(gca,'yticklabel',FF49Names.shortName)
+% 
+% barh(indTRet(:,3));
+% set(gca,'ytick',1:49);
+% set(gca,'yticklabel',FF49Names.shortName)
