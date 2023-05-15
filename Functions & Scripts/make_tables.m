@@ -36,8 +36,8 @@ for i = 1:length(indFinite)
     index(indFinite(i)+3,:)=ind(indFinite(i),:);        
 end
 
-a=[mean(res.nStocks(:,1:5), 1, 'omitnan'); mean(res.ptfMarketCap(:, 1:5), 1, 'omitnan')/1e6; 100*prt_char(wCAR3,ind); 100*prt_char(wtiBetas,ind); 100*prt_char(oilResponseForecast,ind);];
-h={'n','me','wCAR3','beta','Oil Forecast'};
+a=[mean(res.ptfNumStocks(:,1:5), 1, 'omitnan'); mean(res.ptfMarketCap(:, 1:5), 1, 'omitnan')/1e6; 100*prt_char(wCAR3,ind); 100*prt_char(wtiBetas,ind); 100*prt_char(oilResponseForecast,ind);];
+h={'\# of Firms','Market Capitalization','Industry-Weighted CAR3 ($wCAR3_{i,Q}$)','Oil Price Exposure ($\hat\beta_{i,Q}$)','Oil-Response Forecast ($\hat u_{i,Q}^\text{Oil}$)'};
 mat2Tex(a, a, h, 2);
 
 %% Table 2 - time-series regressions
@@ -81,7 +81,6 @@ pret(indZeroOilQtrChange+3,end-1:end)=repmat(rf(indZeroOilQtrChange+3),1,2);
 pret(indZeroOilQtrChange+1,1:end-2)=0;
 pret(indZeroOilQtrChange+2,1:end-2)=0;
 pret(indZeroOilQtrChange+3,1:end-2)=0;
-
 
 printPtfResults(pret, s, 1)
 
@@ -139,59 +138,34 @@ res1 = runFamaMacBeth(100*yret, [orp_rank],                              dates, 
                                                                                 'weightMatrix', me, ...
                                                                                 'neweyWestLags', 3, ...
                                                                                 'printResults', 0);
-res2 = runFamaMacBeth(100*yret, [orp_rank log(me)],                      dates, 'timePeriod', 197501, ...
+res2 = runFamaMacBeth(100*yret, [log(me) log(bm) gp inv R ret],          dates, 'timePeriod', 197501, ...
                                                                                 'weightMatrix', me, ...
                                                                                 'neweyWestLags', 3, ...
                                                                                 'printResults', 0);
-res3 = runFamaMacBeth(100*yret, [orp_rank log(bm)],                      dates, 'timePeriod', 197501, ...
-                                                                                'weightMatrix', me, ...
-                                                                                'neweyWestLags', 3, ...
-                                                                                'printResults', 0);
-res4 = runFamaMacBeth(100*yret, [orp_rank gp],                           dates, 'timePeriod', 197501, ...
-                                                                                'weightMatrix', me, ...
-                                                                                'neweyWestLags', 3, ...
-                                                                                'printResults', 0);
-res5 = runFamaMacBeth(100*yret, [orp_rank inv],                          dates, 'timePeriod', 197501, ...
-                                                                                'weightMatrix', me, ...
-                                                                                'neweyWestLags', 3, ...
-                                                                                'printResults', 0);
-res6 = runFamaMacBeth(100*yret, [orp_rank R],                            dates, 'timePeriod', 197501, ...
-                                                                                'weightMatrix', me, ...
-                                                                                'neweyWestLags', 3, ...
-                                                                                'printResults', 0);
-res7 = runFamaMacBeth(100*yret, [orp_rank ret],                          dates, 'timePeriod', 197501, ...
-                                                                                'weightMatrix', me, ...
-                                                                                'neweyWestLags', 3, ...
-                                                                                'printResults', 0);
-res8 = runFamaMacBeth(100*yret, [log(me) log(bm) gp inv R ret],          dates, 'timePeriod', 197501, ...
-                                                                                'weightMatrix', me, ...
-                                                                                'neweyWestLags', 3, ...
-                                                                                'printResults', 0);
-res9 = runFamaMacBeth(100*yret, [orp_rank log(me) log(bm) gp inv R ret], dates, 'timePeriod', 197501, ...
+res3 = runFamaMacBeth(100*yret, [orp_rank log(me) log(bm) gp inv R ret], dates, 'timePeriod', 197501, ...
                                                                                 'weightMatrix', me, ...
                                                                                 'neweyWestLags', 3, ...
                                                                                 'printResults', 0);
 
 
-a=[res1.bhat(2) res2.bhat(2) res3.bhat(2) res4.bhat(2) res5.bhat(2) res6.bhat(2) res7.bhat(2) nan           res9.bhat(2);
-   nan          res2.bhat(3) nan          nan          nan          nan          nan          res8.bhat(2)  res9.bhat(3); 
-   nan          nan          res3.bhat(3) nan          nan          nan          nan          res8.bhat(3)  res9.bhat(4);
-   nan          nan          nan          res4.bhat(3) nan          nan          nan          res8.bhat(4)  res9.bhat(5);
-   nan          nan          nan          nan          res5.bhat(3) nan          nan          res8.bhat(5)  res9.bhat(6);
-   nan          nan          nan          nan          nan          res6.bhat(3) nan          res8.bhat(6)  res9.bhat(7);
-   nan          nan          nan          nan          nan          nan          res7.bhat(3) res8.bhat(7)  res9.bhat(8);
-   sum(isfinite(res1.beta(:,1))) sum(isfinite(res2.beta(:,1))) sum(isfinite(res3.beta(:,1))) sum(isfinite(res4.beta(:,1))) ...
-   sum(isfinite(res5.beta(:,1))) sum(isfinite(res6.beta(:,1))) sum(isfinite(res7.beta(:,1))) sum(isfinite(res8.beta(:,1))) ...
-   sum(isfinite(res9.beta(:,1)))];
+a=[res1.bhat(2) nan           res3.bhat(2);
+   nan          res2.bhat(2)  res3.bhat(3); 
+   nan          res2.bhat(3)  res3.bhat(4);
+   nan          res3.bhat(4)  res3.bhat(5);
+   nan          res2.bhat(5)  res3.bhat(6);
+   nan          res2.bhat(6)  res3.bhat(7);
+   nan          res2.bhat(7)  res3.bhat(8);
+   sum(isfinite(res1.beta(:,1))) sum(isfinite(res2.beta(:,1))) ...
+   sum(isfinite(res3.beta(:,1)))];
    
-tA=[res1.t(2) res2.t(2) res3.t(2) res4.t(2) res5.t(2) res6.t(2) res7.t(2) nan           res9.t(2);
-   nan          res2.t(3) nan          nan          nan          nan          nan          res8.t(2)  res9.t(3); 
-   nan          nan          res3.t(3) nan          nan          nan          nan          res8.t(3)  res9.t(4);
-   nan          nan          nan          res4.t(3) nan          nan          nan          res8.t(4)  res9.t(5);
-   nan          nan          nan          nan          res5.t(3) nan          nan          res8.t(5)  res9.t(6);
-   nan          nan          nan          nan          nan          res6.t(3) nan          res8.t(6)  res9.t(7);
-   nan          nan          nan          nan          nan          nan          res7.t(3) res8.t(7)  res9.t(8);
-   nan(1,9)];
+tA=[res1.t(2)   nan        res3.t(2);
+   nan          res2.t(2)  res3.t(3); 
+   nan          res2.t(3)  res3.t(4);
+   nan          res2.t(4)  res3.t(5);
+   nan          res2.t(5)  res3.t(6);
+   nan          res2.t(6)  res3.t(7);
+   nan          res2.t(7)  res3.t(8);
+   nan(1,3)];
 
 h=[{'Rank ($\hat{u}_{i,Q}^{\DeltaP_{Oil}}$)'}, ...
    {'log(ME)'}, ...
@@ -201,8 +175,10 @@ h=[{'Rank ($\hat{u}_{i,Q}^{\DeltaP_{Oil}}$)'}, ...
    {'$r_{12,1}$'}, ...
    {'$r_{1,0}$'}, ...
    {'$n$'}];
+a = [nan(8,1) a];
+tA = [nan(8,1) tA];
 
-mat2Tex(a(:,[1 end-1:end]),tA(:,[1 end-1:end]),h,2);
+mat2Tex(a,tA,h,2);
 
 %% Table 4 - Controlling for other anomalies
  
@@ -376,6 +352,272 @@ pret(indZeroOilQtrChange+3,1:end-2)=0;
 printPtfResults(pret, s)
 
 
+%% Table 6 - Subsamples 
+
+clear
+clc
+
+load ret
+load me
+load dates
+load nyse
+load ff
+load varStruct
+
+% Determine the start date & number of portfolios
+s = find(dates==197501);
+nPtf = 5;
+
+
+% Find the FF49 results
+r = find(strcmp([varStruct.label],{'FF49'}));
+oilChanges = varStruct(r).wtiMonthlyBetas.quarterlyChanges;
+oilResponseForecast = varStruct(r).predictedCAR.Changes;
+
+
+% Run the time-series regressions
+ind = makeUnivSortInd(oilResponseForecast, nPtf, NYSE);
+res = runUnivSort(ret, ind, dates, me, 'plotFigure', 0, ...
+                                       'printResults', 0, ...
+                                       'factorModel', 1);
+
+% Account for the zero-oil-price-change quarters
+pret = res.pret;
+indZeroOilQtrChange = find(oilChanges == 0 & ...
+                          dates>197412);
+pret(indZeroOilQtrChange+1,end-1:end)=repmat(rf(indZeroOilQtrChange+1),1,2);
+pret(indZeroOilQtrChange+2,end-1:end)=repmat(rf(indZeroOilQtrChange+2),1,2);
+pret(indZeroOilQtrChange+3,end-1:end)=repmat(rf(indZeroOilQtrChange+3),1,2);
+pret(indZeroOilQtrChange+1,1:end-2)=0;
+pret(indZeroOilQtrChange+2,1:end-2)=0;
+pret(indZeroOilQtrChange+3,1:end-2)=0;
+
+% Panel A: oil price changes:
+% Calculate the thresholds for the oil price changes
+quarterlyChanges = (oilChanges);
+quarterlyChanges(dates<197501) = nan;
+quarterlyChanges(isnan(quarterlyChanges)) = [];
+thresholds = prctile(quarterlyChanges, [30 70]);
+
+% Get the three samples indicators
+lagChanges=lag((oilChanges),3,nan);
+lagChanges(dates<197501)=nan;
+for i=find(ismember(dates-100*floor(dates/100),[3 6 9 12]), 1, 'first'):3:length(lagChanges)
+    lagChanges(i-1)=lagChanges(i);
+    lagChanges(i-2)=lagChanges(i);
+end
+
+qChOne   = lagChanges < thresholds(1);
+qChTwo   = lagChanges >=  thresholds(1) & ...
+           lagChanges < thresholds(2);
+qChThree = lagChanges >= thresholds(2);
+
+
+% Get the average returns 
+res1 = nanols(pret(qChOne,   end), 100*const(qChOne));
+res2 = nanols(pret(qChTwo,   end), 100*const(qChTwo));
+res3 = nanols(pret(qChThree, end), 100*const(qChThree));
+
+fprintf('Panel A: different total oil price changes:\n')
+a  = 100 * [res1.beta res2.beta res3.beta];
+tA =       [res1.tstat res2.tstat res3.tstat];
+mat2Tex(a, tA, {'$r^e$'});
+
+% Panel B: unexpected oil changes
+tempData = readtable('ExpectedOilKilianData.xlsx', 'Sheet','Data');
+tempData = tempData(:,{'Date','QUnexpectedOilChange'});
+tempData.Properties.VariableNames = {'dates','uOilChange'};
+
+monthIndex = dates-100*floor(dates/100);
+quarterEndIndex = (monthIndex==3) | (monthIndex==6) | (monthIndex==9) | (monthIndex==12);
+
+
+[~,ia,ib] = intersect(dates,tempData.dates);
+uOilQuarterly=nan(size(dates));
+uOilQuarterly(ia) = tempData.uOilChange(ib);
+uOilQuarterly(~quarterEndIndex) = nan;
+
+% Calculate the thresholds for the oil price changes
+quarterlyChanges = uOilQuarterly;
+quarterlyChanges(dates<197501) = nan;
+quarterlyChanges(isnan(quarterlyChanges)) = [];
+thresholds = prctile(quarterlyChanges, [30 70]);
+
+% Get the three samples indicators
+lagChanges=lag((oilChanges),3,nan);
+lagChanges(dates<197501)=nan;
+for i=find(ismember(dates-100*floor(dates/100),[3 6 9 12]), 1, 'first'):3:length(lagChanges)
+    lagChanges(i-1)=lagChanges(i);
+    lagChanges(i-2)=lagChanges(i);
+end
+
+qChOne   = lagChanges < thresholds(1);
+qChTwo   = lagChanges >=  thresholds(1) & ...
+           lagChanges < thresholds(2);
+qChThree = lagChanges >= thresholds(2);
+
+
+% Get the average returns 
+res1 = nanols(pret(qChOne,   end), 100*const(qChOne));
+res2 = nanols(pret(qChTwo,   end), 100*const(qChTwo));
+res3 = nanols(pret(qChThree, end), 100*const(qChThree));
+
+
+fprintf('Panel B: different unexpected oil price changes:\n')
+a  = 100 * [res1.beta res2.beta res3.beta];
+tA =       [res1.tstat res2.tstat res3.tstat];
+mat2Tex(a, tA, {'$r^e$'});
+
+% Panel C: Get expected oil changes
+tempData = readtable('ExpectedOilKilianData.xlsx', 'Sheet','Data');
+tempData = tempData(:,{'Date','QUnexpectedOilChange'});
+tempData.Properties.VariableNames = {'dates','uOilChange'};
+
+monthIndex = dates-100*floor(dates/100);
+quarterEndIndex = (monthIndex==3) | (monthIndex==6) | (monthIndex==9) | (monthIndex==12);
+
+uOilMonthly=nan(size(dates));
+uOilQuarterly=nan(size(dates));
+
+[~,ia,ib] = intersect(dates,tempData.dates);
+uOilQuarterly(ia) = tempData.uOilChange(ib);
+uOilQuarterly(~quarterEndIndex) = nan;
+
+% Calculate the thresholds for the oil price changes
+quarterlyChanges = (oilChanges) - (uOilQuarterly);
+quarterlyChanges(dates<197501) = nan;
+quarterlyChanges(isnan(quarterlyChanges)) = [];
+thresholds = prctile(quarterlyChanges, [30 70]);
+
+% Get the three samples indicators
+lagChanges=lag((oilChanges),3,nan);
+lagChanges(dates<197501)=nan;
+for i=find(ismember(dates-100*floor(dates/100),[3 6 9 12]), 1, 'first'):3:length(lagChanges)
+    lagChanges(i-1)=lagChanges(i);
+    lagChanges(i-2)=lagChanges(i);
+end
+
+qChOne   = lagChanges < thresholds(1);
+qChTwo   = lagChanges >=  thresholds(1) & ...
+           lagChanges < thresholds(2);
+qChThree = lagChanges >= thresholds(2);
+
+
+% Get the average returns 
+res1 = nanols(pret(qChOne,   end), 100*const(qChOne));
+res2 = nanols(pret(qChTwo,   end), 100*const(qChTwo));
+res3 = nanols(pret(qChThree, end), 100*const(qChThree));
+
+
+fprintf('Panel C: different expected oil price changes:\n')
+a  = 100 * [res1.beta res2.beta res3.beta];
+tA =       [res1.tstat res2.tstat res3.tstat];
+mat2Tex(a, tA, {'$r^e$'});
+
+
+% Get the GDP data
+fredStruct = getFredData('USREC','1970-01-02',[], 'lin', [],'eop');
+fredData = array2table(fredStruct.Data, 'VariableNames',[{'date'},{'recInd'}]);
+fredData.date = datetime(fredData.date, 'ConvertFrom', 'datenum');
+data = fredData;
+data.dates=100*year(data.date)+month(data.date);
+[~,ia,ib]=intersect(dates,data.dates);
+recInd = nan(size(dates));
+recInd(ia) = data.recInd(ib);
+
+strat_ret = pret(:,end);
+strat_ret(dates<197501) = nan;
+
+ind = (recInd == 1);
+res1 = (nanols(strat_ret(ind),const(ind)));
+res2 = (nanols(strat_ret(~ind),const(~ind)));
+
+fprintf('Panel D: recessions vs expansions:\n')
+a  = [res1.beta res2.beta];
+tA = [res1.tstat res2.tstat];
+mat2Tex(a, tA, {'$r^e$'});
+
+% Bear/bull
+cumMkt = makePastPerformance(mkt, 23, 0)-1;
+bear = 1* cumMkt<0;
+
+strat_ret = pret(:,end);
+strat_ret(dates<197501) = nan;
+
+ind = (bear == 1);
+res1 = (nanols(strat_ret(ind),const(ind)));
+res2 = (nanols(strat_ret(~ind),const(~ind)));
+
+fprintf('Panel E: bear vs bull:\n')
+a  = [res1.beta res2.beta];
+tA = [res1.tstat res2.tstat];
+mat2Tex(a, tA, {'$r^e$'});
+
+% Calculate the thresholds for the oil price changes
+quarterlyChanges = (oilChanges);
+quarterlyChanges(dates<197501) = nan;
+quarterlyChanges(isnan(quarterlyChanges)) = [];
+thresholds = prctile(quarterlyChanges, [30 70]);
+
+% Get the three samples indicators
+lagChanges=lag((oilChanges),3,nan);
+lagChanges(dates<197501)=nan;
+for i=find(ismember(dates-100*floor(dates/100),[3 6 9 12]), 1, 'first'):3:length(lagChanges)
+    lagChanges(i-1)=lagChanges(i);
+    lagChanges(i-2)=lagChanges(i);
+end
+
+qChOne   = lagChanges < thresholds(1);
+qChTwo   = lagChanges >=  thresholds(1) & ...
+           lagChanges < thresholds(2);
+qChThree = lagChanges >= thresholds(2);
+
+
+
+% Get the GDP data
+fredStruct = getFredData('USREC','1970-01-02',[], 'lin', [],'eop');
+fredData = array2table(fredStruct.Data, 'VariableNames',[{'date'},{'recInd'}]);
+fredData.date = datetime(fredData.date, 'ConvertFrom', 'datenum');
+data = fredData;
+data.dates=100*year(data.date)+month(data.date);
+[~,ia,ib]=intersect(dates,data.dates);
+recInd = nan(size(dates));
+recInd(ia) = data.recInd(ib);
+
+strat_ret = pret(:,end);
+strat_ret(dates<197501) = nan;
+
+ind = qChOne & (recInd == 0);
+res1 = (nanols(strat_ret(ind),const(ind)));
+ind = qChTwo & (recInd == 0);
+res2 = (nanols(strat_ret(ind),const(ind)));
+ind = qChThree & (recInd == 0);
+res3 = (nanols(strat_ret(ind),const(ind)));
+
+ind = qChOne & (recInd == 1);
+res4 = (nanols(strat_ret(ind),const(ind)));
+ind = qChTwo & (recInd == 1);
+res5 = (nanols(strat_ret(ind),const(ind)));
+ind = qChThree & (recInd == 1);
+res6 = (nanols(strat_ret(ind),const(ind)));
+
+fprintf('Panel F: double sort (returns):\n')
+a  = [res1.beta res2.beta res3.beta; 
+      res4.beta res5.beta res6.beta];
+tA  = [res1.tstat res2.tstat res3.tstat; 
+      res4.tstat res5.tstat res6.tstat];
+nobs = [res1.nobs res2.nobs res3.nobs; 
+      res4.nobs res5.nobs res6.nobs];
+
+h = {'Expansions','Recessions'};
+
+mat2Tex(a,tA, h, 2);
+
+fprintf('Panel G: double sort (# stocks):\n')
+mat2Tex(nobs,nobs,h,0);
+
+
+
 %% Table 6 - robustness to industry classification
 
 fprintf('\n\n\nTable 6 output:\n\n\n');
@@ -524,10 +766,10 @@ pret = res1.pret;
 
 % Account for portfolio-months with fewer than 20 stocks
 for i = 1:nPtf-1
-    ind = res1.nStocks(:,i)<20;
+    ind = res1.ptfNumStocks(:,i)<20;
     pret(ind,i) = 0;
 end
-ind = res1.nStocks(:,nPtf)<20;
+ind = res1.ptfNumStocks(:,nPtf)<20;
 pret(ind, nPtf) = rf(ind);
 pret(:,nPtf+1) = pret(:,nPtf) - pret(:,1);
 
@@ -556,10 +798,10 @@ pret = res2.pret;
 
 % Account for portfolio-months with fewer than 20 stocks
 for i = 1:nPtf-1
-    ind = res2.nStocks(:,i)<20;
+    ind = res2.ptfNumStocks(:,i)<20;
     pret(ind,i) = 0;
 end
-ind = res2.nStocks(:,nPtf)<20;
+ind = res2.ptfNumStocks(:,nPtf)<20;
 pret(ind, nPtf) = rf(ind);
 pret(:,nPtf+1) = pret(:,nPtf) - pret(:,1);
 
@@ -636,26 +878,26 @@ r = find(strcmp([varStruct.label],{'FF49'}));
 wCAR3 = varStruct(r).wCAR3;
 
 fredKeys = {'WPU101','WPU01830131','WPU01220205','WPU10210501','WPUSI019011','WPU102402', ...
-            'GDP','IPMAN','UNRATE','PCUOMFGOMFG','CPALTT01USM657N'};
-
-labels = {'IronSteel','Soybeans','Corn','Gold','Copper','Aluminum', ...
-            'GDP','IndProd','UnRate','PPI','CPI'};        
+            'GDP','IPMAN','UNRATE','PCUOMFGOMFG','CPALTT01USM657N', ...
+            'GS10', 'GS2', 'VIXCLS','LIOR3M'};
         
-%             'UNRATE','GDP','USREC','PPIACO','PCUOMFGOMFG','CPALTT01USM657N','GS30', ...
-%             'GS10','HQMCB10YRP','USALOLITONOSTSAM','USPHCI','M08297USM548NNBR','IPMAN', ...
-%             'MANEMP','HOUST','PI'};
-
-fredStruct = getFredData(char(fredKeys(1)),'1970-01-02','2021-12-31', 'lin', [],'eop');
+fredStruct = getFredData(char(fredKeys(1)),'1970-01-02',[], 'lin', [],'eop');
 fredData = array2table(fredStruct.Data, 'VariableNames',[{'date'},fredKeys(1)]);
 fredData.date = datetime(fredData.date, 'ConvertFrom', 'datenum');
+fredData.dates = 100*year(fredData.date)+month(fredData.date);
+fredData = fredData(:, {'date','dates',char(fredKeys(1))});
 
 for i = 2:length(fredKeys)
     try
-        fredStruct=getFredData(char(fredKeys(i)),'1970-01-02','2021-12-31','lin',[],'eop');
-        tempData = array2table(fredStruct.Data, 'VariableNames',[{'date'},fredKeys(i)]);
-        tempData.date = datetime(tempData.date, 'ConvertFrom', 'datenum');
-        if strcmp(fredKeys(i), 'GDP')
+        if ismember(fredKeys(i), {'GDP','LIOR3M'})            
+            fredStruct = getFredData(char(fredKeys(i)),'1970-01-02',[],'lin','q','eop');
+            tempData = array2table(fredStruct.Data, 'VariableNames',[{'date'},fredKeys(i)]);
+            tempData.date = datetime(tempData.date, 'ConvertFrom', 'datenum');
             tempData.date = tempData.date + calmonths(2);
+        else
+            fredStruct = getFredData(char(fredKeys(i)),'1970-01-02',[],'lin','m','eop');
+            tempData = array2table(fredStruct.Data, 'VariableNames',[{'date'},fredKeys(i)]);
+            tempData.date = datetime(tempData.date, 'ConvertFrom', 'datenum');
         end
         fredData = outerjoin(fredData, tempData, 'MergeKeys', 1);
     catch
@@ -663,12 +905,24 @@ for i = 2:length(fredKeys)
     end
 end
 data = fredData;
-data.dates=100*year(data.date)+month(data.date);
-[~,ia,ib]=intersect(dates,data.dates);
+
+% Add slopes
+data.slope = data.GS10-data.GS2;
+data.GS10 = [];
+
+% Add unexpected SPY
+load uSPY
+tempData = array2table([dates uSPY], 'VariableNames', {'dates','uSPY'});
+% tempData = readtable('SPYData.xlsx', 'Sheet','UnexpectedSPY');
+% tempData.Properties.VariableNames = {'dates','uSPY'};
+data = outerjoin(data, tempData, 'MergeKeys', 1, 'Type', 'Left');
 
 
+% Make the structure
 monthIndex=dates-100*floor(dates/100);
 quarterEndIndex=(monthIndex==3) | (monthIndex==6) | (monthIndex==9) | (monthIndex==12);
+
+[~,ia,ib] = intersect(dates,data.dates);
 
 commodityStruct=struct;
 commodityStruct(1).monthly=nan(size(dates));
@@ -677,13 +931,20 @@ commodityStruct(1).quarterlyChanges=nan(size(dates));
 commodityStruct(1).quarterlyReturns=nan(size(dates));
 
 varNames=data.Properties.VariableNames';
-for i=2:size(data,2)-1  
-    eval(['commodityStruct(i-1,1).monthly(ia,1)=data.',char(varNames(i)),'(ib);']);
-    commodityStruct(i-1,1).quarterly=commodityStruct(i-1).monthly;
-    commodityStruct(i-1,1).quarterly(~quarterEndIndex)=nan;
-    commodityStruct(i-1,1).quarterlyChanges=commodityStruct(i-1).quarterly-lag(commodityStruct(i-1).quarterly,3,nan);
-    commodityStruct(i-1,1).quarterlyReturns=commodityStruct(i-1).quarterly./lag(commodityStruct(i-1).quarterly,3,nan)-1;    
-    commodityStruct(i-1,1).label=labels(i-1);
+for i=2:length(varNames)-1
+    eval(['commodityStruct(i-1,1).monthly(ia,1)=data.',char(varNames(i+1)),'(ib);']);
+    commodityStruct(i-1,1).quarterly = commodityStruct(i-1).monthly;
+    commodityStruct(i-1,1).quarterly(~quarterEndIndex) = nan;
+    commodityStruct(i-1,1).quarterlyChanges = commodityStruct(i-1).quarterly-lag(commodityStruct(i-1).quarterly,3,nan);
+    commodityStruct(i-1,1).quarterlyReturns = commodityStruct(i-1).quarterly./lag(commodityStruct(i-1).quarterly,3,nan)-1;    
+    commodityStruct(i-1,1).label=(varNames(i+1));
+end
+
+% Make the variables we don't want changes in unexpected market 
+indLevels = find(ismember([commodityStruct.label], {'uSPY'}));
+for i = indLevels
+    commodityStruct(i).quarterlyChanges = commodityStruct(i).quarterly;
+    commodityStruct(i).quarterlyReturns = commodityStruct(i).quarterly;
 end
 
 horizon=12 * 3; % 20 quarters enough?
@@ -710,12 +971,27 @@ for i=1:length(predictedCAR)
     end
 end
 
+
+mapping = [{'WPU101','WPU01830131','WPU01220205','WPU10210501','WPUSI019011','WPU102402', ...
+            'GDP','IPMAN','UNRATE','PCUOMFGOMFG','CPALTT01USM657N', ...
+            'GS2', 'VIXCLS','LIOR3M','uSPY','slope'};
+            {'IronSteel','Soybeans','Corn','Gold','Copper','Aluminum', ...
+            'GDP','IndProd','UnRate','PPI','CPI', ...
+            'TreasuryLevel','VIX','LIBOR','UnexpectedSPX','TreasurySlope'}]';        
+
+for i=1:size(mapping,1)
+    r = find(ismember([commodityStruct.label], mapping(i,1)));
+    if isfinite(r)
+        commodityStruct(r).label = mapping(i,2);         
+    end
+end
+
 clc
 
 for i=1:length(commodityStruct)
     pret = res(i).pret;
     indZeroOilQtrChange = find(commodityStruct(i).quarterlyChanges == 0 & ...
-                              dates>197412);
+                              dates>197412 & dates<dates(end-2));
     pret(indZeroOilQtrChange+1,end-1:end)=repmat(rf(indZeroOilQtrChange+1),1,2);
     pret(indZeroOilQtrChange+2,end-1:end)=repmat(rf(indZeroOilQtrChange+2),1,2);
     pret(indZeroOilQtrChange+3,end-1:end)=repmat(rf(indZeroOilQtrChange+3),1,2);
@@ -737,6 +1013,7 @@ for i=1:length(commodityStruct)
     a(i,:)=res(i).xret;
     tA(i,:)=res(i).txret;
 end
+
 fprintf('\n\nPanel A:');
 mat2Tex(a(1:6, :),tA(1:6, :),h(1:6, :),2);
 fprintf('\n\nPanel B:');
@@ -797,7 +1074,7 @@ end
 
 indZeroOilQtrChange = find(oilChanges == 0 & ...
                           dates>197412);
-%%
+
 ind1=find(dates>197412 & ismember(dates-100*floor(dates/100), [1 4 7 10]));
 ind2=find(dates>197412 & ismember(dates-100*floor(dates/100), [2 5 8 11]));
 ind3=find(dates>197412 & ismember(dates-100*floor(dates/100), [3 6 9 12]));
@@ -855,6 +1132,5 @@ mat2Tex(100*a,100*a,h,2);
 
 
 fprintf('\n\n\n\nDone with table printing @ %s\n\n\n',char(datetime('now')));
-diary off
 
 

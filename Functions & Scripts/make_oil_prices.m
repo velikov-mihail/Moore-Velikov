@@ -25,7 +25,7 @@ tempData = array2table(fredStruct.Data, 'VariableNames', [{'date'},'WTISPLC']);
 tempData.date = datetime(tempData.date, 'ConvertFrom', 'datenum');
 
 % Get MCOILWTICO starting in 8/2013:
-fredStruct=getFredData('MCOILWTICO', '2013-08-01', '2021-12-31', 'lin', 'm', 'eop');
+fredStruct=getFredData('MCOILWTICO', '2013-08-01', [], 'lin', 'm', 'eop');
 tempData2 = array2table(fredStruct.Data, 'VariableNames', [{'date'},'WTISPLC']);
 tempData2.date = datetime(tempData2.date, 'ConvertFrom', 'datenum');
 

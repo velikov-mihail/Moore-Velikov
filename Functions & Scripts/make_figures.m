@@ -109,15 +109,19 @@ r = find(strcmp([varStruct.label],{'FF49'}));
 oilChanges = varStruct(r).wtiMonthlyBetas.Changes;
 oilResponseForecast = varStruct(r).predictedCAR.Changes;
 
-indTRet = nan(49, 3);
+indSharpe = nan(49, 3);
 indMean = nan(49, 1);
+indStd = nan(49, 1);
+indSkew = nan(49, 1);
 indKurt = nan(49, 1);
 
 for i = 1:49
     temp = oilChanges;
     temp(FF49~=i) = nan;
-    indMean(i) = nanmean(nanmedian(temp(s:end,:),2));
-    indKurt(i) = nanmean(kurtosis(temp(s:end,:),[],2));
+    indMean(i) = mean(mean(temp(s:end,:), 2, 'omitnan'), 'omitnan');
+    indStd(i) = mean(std(temp(s:end,:), [], 2, 'omitnan'), 'omitnan');
+    indKurt(i) = mean(kurtosis(temp(s:end,:), [], 2), 'omitnan');
+    indSkew(i) = mean(skewness(temp(s:end,:), [], 2), 'omitnan');
 
     temp = oilResponseForecast;
     temp(FF49~=i) = nan;
@@ -145,70 +149,120 @@ for i = 1:49
         tempRes = nanols(pret(:,j), const);
         res(i).xret(j) = tempRes.beta;
         res(i).txret(j) = tempRes.tstat;
+        res(i).sharpe(j) = sqrt(12)*mean(pret(:,j), 'omitnan')/std(pret(:,j), 'omitnan');
     end    
-    indTRet(i,:) = res(i).txret;    
+    indSharpe(i,:) = res(i).sharpe;
 end
-
-%%
 
 figure('visible','off');
 
-subplot(2,1,1)
+subplot(2,2,1)
 x = 100*indMean;
-y = indTRet(:,3);
+y = indSharpe(:,3);
 
 h1 = scatter(x, y, 'filled');
 xlabel('Average Industry \beta');
-ylabel({'T-statistic on strategy return','within industry'});
+ylabel({'Sharpe ratio on strategy return','within industry'});
 h2 = lsline;
 res = nanols(y,[ones(size(y)) x]);
 txt = sprintf('y = %.2f + %.2fx',res.beta(1),res.beta(2));
-text(0.04,1,txt,...
+text(0.04,.2,txt,...
         'HorizontalAlignment','center',...
         'VerticalAlignment','bottom',...
         'FontSize',12);
-text(0.037,0.6,strcat('[',num2str(res.tstat(1),'%0.2f'),']'),...
+text(0.037,0.15,strcat('[',num2str(res.tstat(1),'%0.2f'),']'),...
         'HorizontalAlignment','center',...
         'VerticalAlignment','bottom',...
         'FontSize',12);
-text(0.046,0.6,strcat('[',num2str(res.tstat(2),'%0.2f'),']'),...
+text(0.046,0.15,strcat('[',num2str(res.tstat(2),'%0.2f'),']'),...
         'HorizontalAlignment','center',...
         'VerticalAlignment','bottom',...
         'FontSize',12);
+text(x+0.0005,y,FF49Names.shortName);
 
 
-subplot(2,1,2)
+subplot(2,2,2)
+x = 100*indStd;
+
+h1 = scatter(x, y, 'filled');
+xlabel('Standard Deviation of Industry \beta');
+ylabel({'Sharpe ratio on strategy return','within industry'});
+h2 = lsline;
+res = nanols(y,[ones(size(y)) x]);
+txt = sprintf('y = %.2f + %.2fx',res.beta(1),res.beta(2));
+text(0.08,0.2,txt,...
+        'HorizontalAlignment','center',...
+        'VerticalAlignment','bottom',...
+        'FontSize',12);
+text(0.072,.15,strcat('[',num2str(res.tstat(1),'%0.2f'),']'),...
+        'HorizontalAlignment','center',...
+        'VerticalAlignment','bottom',...
+        'FontSize',12);
+text(0.095,.15,strcat('[',num2str(res.tstat(2),'%0.2f'),']'),...
+        'HorizontalAlignment','center',...
+        'VerticalAlignment','bottom',...
+        'FontSize',12);
+text(x+0.0015,y,FF49Names.shortName);
+
+
+subplot(2,2,3)
+x = indSkew;
+
+h1 = scatter(x, y, 'filled');
+xlabel('Skewness of Industry \beta');
+ylabel({'Sharpe ratio on strategy return','within industry'});
+
+h2 = lsline;
+res = nanols(y,[ones(size(y)) x]);
+txt = sprintf('y = %.2f + %.2fx',res.beta(1),res.beta(2));
+text(-0.35,0.2,txt,...
+        'HorizontalAlignment','center',...
+        'VerticalAlignment','bottom',...
+        'FontSize',12);
+text(-0.37,.15,strcat('[',num2str(res.tstat(1),'%0.2f'),']'),...
+        'HorizontalAlignment','center',...
+        'VerticalAlignment','bottom',...
+        'FontSize',12);
+text(-0.30,.15,strcat('[',num2str(res.tstat(2),'%0.2f'),']'),...
+        'HorizontalAlignment','center',...
+        'VerticalAlignment','bottom',...
+        'FontSize',12);
+text(x+0.005,y,FF49Names.shortName);
+
+
+subplot(2,2,4)
 x = indKurt;
-y = indTRet(:,3);
 
 h1 = scatter(x, y, 'filled');
 xlabel('Kurtosis of Industry \beta');
-ylabel({'T-statistic on strategy return','within industry'});
+ylabel({'Sharpe ratio on strategy return','within industry'});
 
 h2 = lsline;
 res = nanols(y,[ones(size(y)) x]);
 txt = sprintf('y = %.2f + %.2fx',res.beta(1),res.beta(2));
-text(8,0,1,txt,...
+text(8.8,0.18,1,txt,...
         'HorizontalAlignment','center',...
         'VerticalAlignment','bottom',...
         'FontSize',12);
-text(7.85,-0.4,strcat('[',num2str(res.tstat(1),'%0.2f'),']'),...
+text(8.65,0.13,strcat('[',num2str(res.tstat(1),'%0.2f'),']'),...
         'HorizontalAlignment','center',...
         'VerticalAlignment','bottom',...
         'FontSize',12);
-text(8.5,-0.4,strcat('[',num2str(res.tstat(2),'%0.2f'),']'),...
+text(9.4,0.13,strcat('[',num2str(res.tstat(2),'%0.2f'),']'),...
         'HorizontalAlignment','center',...
         'VerticalAlignment','bottom',...
         'FontSize',12);
+text(x+0.1,y,FF49Names.shortName);
+
 
 set(gcf, 'PaperPositionMode', 'auto');
-set(gcf,'units','normalized','outerposition',[0 0 0.5 1]);
+set(gcf,'units','normalized','outerposition',[0 0 1 1]);
 set(gca,'LooseInset',get(gca,'TightInset'))
 
 export_fig('Figures/figure4.pdf','-transparent');
 
 
-%% Figure 5: Strategy returns following large oil price changes
+%% Figure 5: Ibbotson plot figure
 
 clear
 clc
@@ -234,7 +288,7 @@ oilResponseForecast = varStruct(r).predictedCAR.Changes;
 % Run the time-series regressions
 ind = makeUnivSortInd(oilResponseForecast, nPtf, NYSE);
 res = runUnivSort(ret, ind, dates, me, 'plotFigure', 0, ...
-                                       'printResults', 1, ...
+                                       'printResults', 0, ...
                                        'factorModel', 1);
 
 % Account for the zero-oil-price-change quarters
@@ -249,66 +303,21 @@ pret(indZeroOilQtrChange+2,1:end-2)=0;
 pret(indZeroOilQtrChange+3,1:end-2)=0;
 
 
-% Calculate the thresholds for the oil price changes
-quarterlyChanges = (oilChanges);
-quarterlyChanges(dates<197501) = nan;
-quarterlyChanges(isnan(quarterlyChanges)) = [];
-thresholds = prctile(quarterlyChanges, [30 70]);
+h = figure('visible','off');
+h.PaperOrientation = 'landscape';
+% figure;
+axisSize=30;
 
-% Get the three samples indicators
-lagChanges=lag((oilChanges),3,nan);
-lagChanges(dates<197501)=nan;
-for i=find(ismember(dates-100*floor(dates/100),[3 6 9 12]), 1, 'first'):3:length(lagChanges)
-    lagChanges(i-1)=lagChanges(i);
-    lagChanges(i-2)=lagChanges(i);
-end
+ibbots_nber([pret(:,6) mkt], dates, 'timePeriod', 197501, ...
+                               'legendLabels', {'ORF','MKT'}, ...
+                               'lineWidth', 5);
+set(gca,'FontSize',axisSize);
 
-qChOne   = lagChanges < thresholds(1);
-qChTwo   = lagChanges >=  thresholds(1) & ...
-           lagChanges < thresholds(2);
-qChThree = lagChanges >= thresholds(2);
-
-
-% Get the average returns 
-res1 = nanols(pret(qChOne,   end), 100*const(qChOne));
-res2 = nanols(pret(qChTwo,   end), 100*const(qChTwo));
-res3 = nanols(pret(qChThree, end), 100*const(qChThree));
-
-
-a  = 100 * [res1.beta res2.beta res3.beta];
-tA =       [res1.tstat res2.tstat res3.tstat];
-
-figure('visible','off');
-bar(a,'FaceColor',[0 0 0.6]);
-xlim([0.5 3.5]);
-titleSize=25;
-axisSize=25;
-legendSize=20;
-
-
-title('Average returns to strategy following quarterly oil price changes','FontSize',titleSize);
-ylabel('xret in %/month','FontSize',axisSize);
-xlabel('\Delta P_{t-1}^{Oil}','FontSize',axisSize);
-set(gca,'XTickLabel',[{'Tertile 1'},{'Tertile 2'},{'Tertile 3'}]);
-set(gca,'FontSize',axisSize');
-
-for i=1:length(a)
-    text(i,a(i)+0.07,num2str(a(i),'%0.2f'),...
-            'HorizontalAlignment','center',...
-            'VerticalAlignment','bottom',...
-            'FontSize',axisSize);
-    text(i,a(i)+0.03,strcat('[',num2str(tA(i),'%0.2f'),']'),...
-            'HorizontalAlignment','center',...
-            'VerticalAlignment','bottom',...
-            'FontSize',axisSize);
-end
-set(gca,'Ylim',[0 max(a)+0.2]);
+set(gcf,'units','normalized','outerposition',[0 0 1 1])
+set(gca,'LooseInset', get(gca,'TightInset'))
 set(gcf, 'PaperPositionMode', 'auto');
-set(gcf,'units','normalized','outerposition',[0 0 1 1]);
-set(gca,'LooseInset',get(gca,'TightInset'))
 
-
-export_fig('Figures/figure5.pdf','-transparent');
+print(gcf, '-dpdf', 'Figures\figure5.pdf','-fillpage'); 
 
 %% Figure 6: Event-time quarterly returns relative to quarter start figure
 
@@ -513,3 +522,9 @@ set(gca,'XTickLabel',head);
 xtickangle(90);
 
 export_fig('Figures/figure7.pdf','-transparent');
+
+%% Timekeeping
+
+
+fprintf('\n\n\n\nDone with figures @ %s\n\n\n',char(datetime('now')));
+

@@ -14,31 +14,31 @@ for i = 1:(nPtf)
     
     % Average returns
     x = const(s:end);
-    tempRes = ols(y, x);
+    tempRes = nanols(y, x);
     result.xret(i,1)  = tempRes.beta(1);
     result.txret(i,1) = tempRes.tstat(1);
 
     % CAPM
     x = [const(s:end) mkt(s:end)];
-    tempRes = ols(y, x);
+    tempRes = nanols(y, x);
     result.alpha1(i,1)  = tempRes.beta(1);
     result.talpha1(i,1) = tempRes.tstat(1);
 
     % FF3
     x = [ff3(s:end, :)];
-    tempRes = ols(y, x);
+    tempRes = nanols(y, x);
     result.alpha3(i,1)  = tempRes.beta(1);
     result.talpha3(i,1) = tempRes.tstat(1);
     
     % FF4
     x = [ff4(s:end, :)];
-    tempRes = ols(y, x);
+    tempRes = nanols(y, x);
     result.alpha4(i,1)  = tempRes.beta(1);
     result.talpha4(i,1) = tempRes.tstat(1);
     
     % FF5
     x = [ff5(s:end, :)];
-    tempRes = ols(y, x);
+    tempRes = nanols(y, x);
     result.alpha5(i,1)  = tempRes.beta(1);
     result.talpha5(i,1) = tempRes.tstat(1);
     

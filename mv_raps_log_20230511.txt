@@ -1,0 +1,60 @@
+Run of mv_raps started on 11-May-2023 15:19:17 by user mjv5465.
+Now working on the daily betas. Run started @ 11-May-2023 15:19:17.
+
+
+Now working on the weighting functions. Run started @ 11-May-2023 18:44:31.
+
+
+Now working on FF10. Run started at 11-May-2023 18:45:20.
+
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to the parallel pool (number of workers: 8).
+Done with FF10 at 12-May-2023 04:47:59.
+
+
+Now working on FF17. Run started at 12-May-2023 04:48:01.
+
+Done with FF17 at 12-May-2023 14:45:01.
+
+
+Now working on FF49. Run started at 12-May-2023 14:45:04.
+
+Done with FF49 at 13-May-2023 00:47:01.
+
+
+Now working on SIC2d. Run started at 13-May-2023 00:47:05.
+
+Done with SIC2d at 13-May-2023 10:27:12.
+
+
+Now working on SIC3d. Run started at 13-May-2023 10:27:18.
+
+Done with SIC3d at 13-May-2023 20:36:30.
+
+
+Now working on SIC4d. Run started at 13-May-2023 20:36:37.
+
+Done with SIC4d at 14-May-2023 06:47:45.
+
+
+Now working on the oil prices. Run started @ 14-May-2023 06:48:01.
+
+
+Now working on the betas and oil response forecasts. Run started @ 14-May-2023 06:48:04.
+
+
+Now working on the ad-hoc results. Run started @ 14-May-2023 06:55:00.
+
+
+IdleTimeout has been reached.
+Parallel pool using the 'Processes' profile is shutting down.
+Now working on the making the figures. Run started @ 15-May-2023 10:16:16.
+
+
+
+
+
+
+Done with figures @ 15-May-2023 10:22:08
+
+
