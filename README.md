@@ -1,12 +1,12 @@
 # Moore--Velikov
- Code used to create results in Moore and Velikov (WP, 2022), Oil price exposure and the cross section of stock returns
+ Code used to create results in Moore and Velikov (RAPS, Forthcoming), Oil price exposure and the cross section of stock returns
 
-This repository contains code used to create the results in Moore and Velikov (WP, 2022), Oil price exposure and the cross section of stock returns. This code is to be used in conjunction with the MATLAB asset pricing package that accompanies Novy-Marx and Velikov (WP, 2022), Assaying Anomalies. 
+This repository contains code used to create the results in Moore and Velikov (RAPS, Forthcoming), Oil price exposure and the cross section of stock returns. This code is to be used in conjunction with the MATLAB asset pricing package that accompanies Novy-Marx and Velikov (WP, 2023), Assaying Anomalies. 
 
-The order of operations to replicate the results in Moore and Velikov (WP, 2022) is:
+The order of operations to replicate the results in Moore and Velikov (RAPS, Forthcoming) is:
 
 1. Download and follow the instructions for setting up the MATLAB Toolkit from https://github.com/velikov-mihail/AssayingAnomalies.git
-	* The results in Moore and Velikov (WP, 2022) use the pre-release v0.4.0 of the MATLAB Toolkit.
+	* The results in Moore and Velikov (RAPS, Forthcoming) use the pre-release v0.4.1 of the MATLAB Toolkit.
 3. Download the code in this repository.
 4. Run mv.m. The script requires setting up the directories for the MATLAB asset pricing package repository and this repository. It starts a log file and calls multiple other scripts which perform the following functions:  
 	* make_daily_betas.m creates and stores the daily betas to be used to calculate CARs for the construction of the weighted CAR3's
