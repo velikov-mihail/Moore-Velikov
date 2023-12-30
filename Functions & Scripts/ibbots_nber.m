@@ -81,6 +81,8 @@ rets(isnan(rets)) = 0;
 y = cumprod(1+[zeros(1,size(rets,2)); rets]);
 % y = y(2:end,:);
 
+lineTypes ={'-','--'};
+
 % Check if linear or log plot
 if p.Results.linPlotInd == 1
     % Linear scale
@@ -91,7 +93,8 @@ if p.Results.linPlotInd == 1
                                   'FontSize', 12)
 else
     % Log scale
-    semilogy(repmat(x,1,size(y,2)), y, 'LineWidth', p.Results.lineWidth);
+    % semilogy(repmat(x,1,size(y,2)), y, 'LineWidth', p.Results.lineWidth);
+    semilogy(x,y(:,1),'-',x,y(:,2),':','LineWidth', p.Results.lineWidth);
     xlim([x(1) x(end)])
     ylim([0.8*min(min(y)) 1.4*max(max(y))])
     title('Performance of $1 (log scale)', 'FontName', 'Times New Roman', ...
